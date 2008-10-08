@@ -398,7 +398,6 @@ module ActiveModel
 
           force_reload = params.first unless params.empty?
           association = instance_variable_get(ivar) if instance_variable_defined?(ivar)
-
           unless association.respond_to?(:loaded?)
             association = association_proxy_class.new(self, reflection)
             instance_variable_set(ivar, association)

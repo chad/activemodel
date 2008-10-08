@@ -57,7 +57,8 @@ module ActiveModel
         end
       end
       
-    def method_missing(method, *args)
+ def method_missing(method, *args)
+   load_target unless @loaded
       if @target.respond_to?(method) || (!@reflection.klass.respond_to?(method) && Class.respond_to?(method))
         if block_given?
           super { |*block_args| yield(*block_args) }
