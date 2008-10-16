@@ -395,7 +395,6 @@ module ActiveModel
       def collection_reader_method(reflection, association_proxy_class)
         define_method(reflection.name) do |*params|
           ivar = "@#{reflection.name}"
-
           force_reload = params.first unless params.empty?
           association = instance_variable_get(ivar) if instance_variable_defined?(ivar)
           unless association.respond_to?(:loaded?)

@@ -25,12 +25,12 @@ module ActiveModel
     end
     
     def new_record?
-      #persistence_driver.new_record?(self)
+      defined?(@new_record) && @new_record
     end
     
     def create_or_update(*args, &block)
-#      result = new_record? ? create : update
-#      result != false
+      result = new_record? ? create : update
+      result != false
     end
   end
 end

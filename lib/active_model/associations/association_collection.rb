@@ -57,6 +57,39 @@ module ActiveModel
         end
       end
       
+
+      def build_record(attrs)
+        attrs.update(@reflection.options[:conditions]) if @reflection.options[:conditions].is_a?(Hash)
+        record = @reflection.klass.new(attrs)
+        if block_given?
+          add_record_to_target_with_callbacks(record) { |*block_args| yield(*block_args) }
+        else
+          add_record_to_target_with_callbacks(record)
+        end
+      end
+      
+      def add_record_to_target_with_callbacks(record)
+        callback(:before_add, record)
+        yield(record) if block_given?
+        @target ||= [] unless loaded?
+        @target << record unless @reflection.options[:uniq] && @target.include?(record)
+        callback(:after_add, record)
+        record
+      end
+
+      def callback(method, record)
+        callbacks_for(method).each do |callback|
+          ActiveSupport::Callbacks::Callback.new(method, callback, record).call(@owner, record)
+        end
+      end
+            
+      
+
+      def callbacks_for(callback_name)
+        full_callback_name = "#{callback_name}_for_#{@reflection.name}"
+        @owner.class.read_inheritable_attribute(full_callback_name.to_sym) || []
+      end   
+      
  def method_missing(method, *args)
    load_target unless @loaded
       if @target.respond_to?(method) || (!@reflection.klass.respond_to?(method) && Class.respond_to?(method))
